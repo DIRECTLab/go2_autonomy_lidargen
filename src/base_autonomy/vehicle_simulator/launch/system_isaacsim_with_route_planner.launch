@@ -1,0 +1,47 @@
+<launch>
+
+  <!--
+    Isaac Sim variant of system_simulation_with_route_planner.launch: drops
+    vehicle_simulator (kinematic body + Unity pose relay), ros_tcp_endpoint,
+    and sim_image_repub -- lidargen's go2_explore.py replaces all three by
+    publishing /state_estimation + map->sensor TF + /registered_scan directly
+    from Isaac Sim (see ~/.claude/plans/scalable-soaring-yeti.md, Phase 3).
+    Launch go2_explore.py separately (see
+    system_isaacsim_with_route_planner.sh) before or after this file; the ROS2
+    graph just needs both processes up before far_planner is given a goal.
+  -->
+
+  <arg name="sensorOffsetX" default="0.0"/>
+  <arg name="sensorOffsetY" default="0.0"/>
+  <arg name="cameraOffsetZ" default="0.0"/>
+  <arg name="vehicleX" default="0.0"/>
+  <arg name="vehicleY" default="0.0"/>
+  <arg name="checkTerrainConn" default="true"/>
+
+  <node pkg="joy" exec="joy_node" name="ps3_joy" output="screen" >
+    <param name="dev" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+    <param name="autorepeat_rate" value="0.0" />
+  </node>
+
+  <include file="$(find-pkg-share local_planner)/launch/local_planner.launch" >
+    <arg name="sensorOffsetX" value="$(var sensorOffsetX)" />
+    <arg name="sensorOffsetY" value="$(var sensorOffsetY)" />
+    <arg name="cameraOffsetZ" value="$(var cameraOffsetZ)"/>
+    <arg name="goalX" value="$(var vehicleX)"/>
+    <arg name="goalY" value="$(var vehicleY)"/>
+  </include>
+
+  <include file="$(find-pkg-share terrain_analysis)/launch/terrain_analysis.launch" />
+
+  <include file="$(find-pkg-share terrain_analysis_ext)/launch/terrain_analysis_ext.launch" >
+    <arg name="checkTerrainConn" value="$(var checkTerrainConn)"/>
+  </include>
+
+  <include file="$(find-pkg-share sensor_scan_generation)/launch/sensor_scan_generation.launch" />
+
+  <include file="$(find-pkg-share visualization_tools)/launch/visualization_tools.launch" />
+
+  <include file="$(find-pkg-share far_planner)/launch/far_planner.launch" />
+
+</launch>
