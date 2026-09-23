@@ -7,6 +7,9 @@
   <arg name="maxSpeed" default="1.0"/>
   <arg name="autonomyMode" default="false"/>
   <arg name="autonomySpeed" default="1.0"/>
+  <arg name="yawRateGain" default="1.5"/>
+  <arg name="maxYawRate" default="80.0"/>
+  <arg name="dirDiffThre" default="0.4"/>
   <arg name="joyToSpeedDelay" default="2.0"/>
   <arg name="goalCloseDis" default="0.4"/>
   <arg name="goalX" default="0.0"/>
@@ -61,13 +64,13 @@
     <param name="pubSkipNum" value="1" />
     <param name="twoWayDrive" value="$(var twoWayDrive)" />
     <param name="lookAheadDis" value="0.5" />
-    <param name="yawRateGain" value="1.5" />
+    <param name="yawRateGain" value="$(var yawRateGain)" />
     <param name="stopYawRateGain" value="1.5" />
-    <param name="maxYawRate" value="80.0" />
+    <param name="maxYawRate" value="$(var maxYawRate)" />
     <param name="maxSpeed" value="$(var maxSpeed)" />
     <param name="maxAccel" value="2.0" />
     <param name="switchTimeThre" value="1.0" />
-    <param name="dirDiffThre" value="0.4" />
+    <param name="dirDiffThre" value="$(var dirDiffThre)" />
     <param name="omniDirDiffThre" value="1.5" />
     <param name="noRotSpeed" value="10.0"/>
     <param name="stopDisThre" value="0.3" />

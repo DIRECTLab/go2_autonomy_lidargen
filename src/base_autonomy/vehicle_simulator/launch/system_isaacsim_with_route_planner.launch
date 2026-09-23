@@ -3,10 +3,9 @@
   <!--
     Isaac Sim variant of system_simulation_with_route_planner.launch: drops
     vehicle_simulator (kinematic body + Unity pose relay), ros_tcp_endpoint,
-    and sim_image_repub -- lidargen's go2_explore.py replaces all three by
-    publishing /state_estimation + map->sensor TF + /registered_scan directly
-    from Isaac Sim (see ~/.claude/plans/scalable-soaring-yeti.md, Phase 3).
-    Launch go2_explore.py separately (see
+    and sim_image_repub. lidargen's go2_explore.py replaces all three by
+    publishing /state_estimation, the map to sensor TF, and /registered_scan
+    directly from Isaac Sim. Launch go2_explore.py separately (see
     system_isaacsim_with_route_planner.sh) before or after this file; the ROS2
     graph just needs both processes up before far_planner is given a goal.
   -->
@@ -30,9 +29,24 @@
     <arg name="cameraOffsetZ" value="$(var cameraOffsetZ)"/>
     <arg name="goalX" value="$(var vehicleX)"/>
     <arg name="goalY" value="$(var vehicleY)"/>
+    <!-- No RViz control panel / joystick in this setup to switch modes, so
+         start directly in autonomy (waypoint-following) mode. -->
+    <arg name="autonomyMode" value="true"/>
+    <!-- Legged-robot tuning (sim: favor speed). Loose heading gate keeps it
+         driving while turning instead of rotating in place. -->
+    <arg name="maxYawRate" value="90.0"/>
+    <arg name="yawRateGain" value="2.0"/>
+    <arg name="dirDiffThre" value="0.6"/>
   </include>
 
-  <include file="$(find-pkg-share terrain_analysis)/launch/terrain_analysis.launch" />
+  <include file="$(find-pkg-share terrain_analysis)/launch/terrain_analysis.launch" >
+    <!-- The current sim lidar preset has a ~1.1 m minimum range, leaving a
+         no-return blind ring around the robot; with noDataObstacle=true that
+         ring becomes a phantom obstacle wall ahead of the robot and forward
+         paths are permanently blocked. Disable until the real sensor config
+         (small min range) replaces the preset. -->
+    <arg name="noDataObstacle" value="false"/>
+  </include>
 
   <include file="$(find-pkg-share terrain_analysis_ext)/launch/terrain_analysis_ext.launch" >
     <arg name="checkTerrainConn" value="$(var checkTerrainConn)"/>
